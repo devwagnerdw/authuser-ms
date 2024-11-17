@@ -23,6 +23,9 @@ spring:
     ansi:
       enabled: Always
 
+  rabbitmq:
+  addresses: amqps://hvyuqppf:Ay-qBRI53ggIuB0nBqG-44-pAurb9RY0@woodpecker.rmq.cloudamqp.com/hvyuqppf
+
 
 logging:
   level:
