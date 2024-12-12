@@ -2,4 +2,4 @@ spring:
   profiles:
     active: prod
   application:
-    name: ead-authuser-service'
+    name: ead-authuser-service
