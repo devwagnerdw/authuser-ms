@@ -2,4 +2,4 @@ spring:
   profiles:
     active: dev
   application:
-    name: ead-authuser-service123cs'
+    name: ead-authuser-service
