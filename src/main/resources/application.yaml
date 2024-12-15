@@ -3,8 +3,3 @@ spring:
     active: prod
   application:
     name: ead-authuser-service
-
-logging:
-  level:
-    org.springframework: DEBUG
-    com.example: DEBUG

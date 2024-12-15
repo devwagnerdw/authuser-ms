@@ -53,7 +53,7 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public ResponseEntity<Object> registerUser(@RequestBody @Validated(UserDto.UserView.RegistrationPost.class)
-                                                   @JsonView(UserDto.UserView.RegistrationPost.class) UserDto userDto){
+                                               @JsonView(UserDto.UserView.RegistrationPost.class) UserDto userDto){
         log.debug("POST registerUser userDto received {} ", userDto.toString());
         if(userService.existsByUsername(userDto.getUsername())){
             log.warn("Username {} is Already Taken ", userDto.getUsername());
@@ -63,7 +63,8 @@ public class AuthenticationController {
             log.warn("Email {} is Already Taken ", userDto.getEmail());
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is Already Taken!");
         }
-        RoleModel roleModel = roleService.findByRoleName(RoleType.ROLE_STUDENT).orElseThrow(()-> new RuntimeException(("Error Role Is Not Found ")));
+        RoleModel roleModel = roleService.findByRoleName(RoleType.ROLE_STUDENT)
+                .orElseThrow(() -> new RuntimeException("Error: Role is Not Found."));
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         var userModel = new UserModel();
         BeanUtils.copyProperties(userDto, userModel);
@@ -95,5 +96,33 @@ public class AuthenticationController {
         log.warn("WARN");
         log.error("ERROR");
         return "Logging Spring Boot...";
+    }
+
+    @PostMapping("/signup/admin/usr")
+    public ResponseEntity<Object> registerUserAdmin(@RequestBody @Validated(UserDto.UserView.RegistrationPost.class)
+                                                    @JsonView(UserDto.UserView.RegistrationPost.class) UserDto userDto){
+        log.debug("POST registerUser userDto received {} ", userDto.toString());
+        if(userService.existsByUsername(userDto.getUsername())){
+            log.warn("Username {} is Already Taken ", userDto.getUsername());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is Already Taken!");
+        }
+        if(userService.existsByEmail(userDto.getEmail())){
+            log.warn("Email {} is Already Taken ", userDto.getEmail());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email is Already Taken!");
+        }
+        RoleModel roleModel = roleService.findByRoleName(RoleType.ROLE_ADMIN)
+                .orElseThrow(() -> new RuntimeException("Error: Role is Not Found."));
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        var userModel = new UserModel();
+        BeanUtils.copyProperties(userDto, userModel);
+        userModel.setUserStatus(UserStatus.ACTIVE);
+        userModel.setUserType(UserType.ADMIN);
+        userModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
+        userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
+        userModel.getRoles().add(roleModel);
+        userService.saveUser(userModel);
+        log.debug("POST registerUser userId saved {} ", userModel.getUserId());
+        log.info("User saved successfully userId {} ", userModel.getUserId());
+        return  ResponseEntity.status(HttpStatus.CREATED).body(userModel);
     }
 }
