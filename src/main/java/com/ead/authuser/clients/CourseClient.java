@@ -4,7 +4,6 @@ import com.ead.authuser.dtos.CourseDto;
 import com.ead.authuser.dtos.ResponsePageDto;
 import com.ead.authuser.services.UtilsService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -52,7 +50,7 @@ public class CourseClient {
         searchResult = result.getBody().getContent();
         log.debug("Response Number of Elements: {} ", searchResult.size());
         log.info("Ending request /courses userId {} ", userId);
-        return new PageImpl<>(searchResult);
+        return new PageImpl<>(searchResult, pageable, result.getBody().getTotalElements());
     }
 
     public Page<CourseDto> circuitbreakerfallback(UUID userId, Pageable pageable, Throwable t) {
