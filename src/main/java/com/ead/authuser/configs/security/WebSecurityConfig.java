@@ -33,7 +33,10 @@ public class WebSecurityConfig {
     AccessDeniedHandlerImpl accessDeniedHandler;
 
     private static final String[] AUTH_WHITELIST = {
-            "/auth/**"
+            "/auth/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**"
     };
 
     @Bean

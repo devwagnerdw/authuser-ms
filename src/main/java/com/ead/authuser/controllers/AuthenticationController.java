@@ -12,6 +12,9 @@ import com.ead.authuser.models.UserModel;
 import com.ead.authuser.services.RoleService;
 import com.ead.authuser.services.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
@@ -51,6 +54,11 @@ public class AuthenticationController {
     AuthenticationManager authenticationManager;
 
     @PostMapping("/signup")
+    @Operation(summary = "Registro de Usuário", description = "Registra um novo usuário com a função básica (ROLE_USER).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuário registrado com sucesso"),
+            @ApiResponse(responseCode = "409", description = "Nome de usuário ou e-mail já em uso")
+    })
     public ResponseEntity<Object> registerUser(@RequestBody @Validated(UserDto.UserView.RegistrationPost.class)
                                                @JsonView(UserDto.UserView.RegistrationPost.class) UserDto userDto){
         log.debug("POST registerUser userDto received {} ", userDto.toString());
@@ -79,6 +87,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login de Usuário", description = "Autentica um usuário e gera um token JWT.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login bem-sucedido, token JWT gerado"),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    })
     public ResponseEntity<JwtDto> authenticateUser(@Valid @RequestBody LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
@@ -88,6 +101,10 @@ public class AuthenticationController {
     }
 
     @GetMapping("/")
+    @Operation(summary = "Teste de Logs", description = "Testa os níveis de log na aplicação.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Testes de log realizados com sucesso")
+    })
     public String index(){
         log.trace("TRACE");
         log.debug("DEBUG");
@@ -98,6 +115,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup/admin/usr")
+    @Operation(summary = "Registro de Administrador", description = "Registra um novo usuário com a função de administrador (ROLE_ADMIN).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Administrador registrado com sucesso"),
+            @ApiResponse(responseCode = "409", description = "Nome de usuário ou e-mail já em uso")
+    })
     public ResponseEntity<Object> registerUserAdmin(@RequestBody @Validated(UserDto.UserView.RegistrationPost.class)
                                                     @JsonView(UserDto.UserView.RegistrationPost.class) UserDto userDto){
         log.debug("POST registerUser userDto received {} ", userDto.toString());

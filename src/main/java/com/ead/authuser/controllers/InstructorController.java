@@ -7,6 +7,9 @@ import com.ead.authuser.models.RoleModel;
 import com.ead.authuser.models.UserModel;
 import com.ead.authuser.services.RoleService;
 import com.ead.authuser.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,12 @@ public class InstructorController {
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping("/subscription")
+    @Operation(summary = "Inscrição de Instrutor", description = "Permite que um administrador atribua a função de instrutor a um usuário existente.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso e função de instrutor atribuída"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Erro na atribuição da função de instrutor")
+    })
     public ResponseEntity<Object> saveSubscriptionInstructor(@RequestBody @Valid InstructorDto instructorDto) {
         Optional<UserModel> userModelOptional = userService.findById(instructorDto.getUserId());
         if(!userModelOptional.isPresent()) {

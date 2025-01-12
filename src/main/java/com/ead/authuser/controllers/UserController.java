@@ -7,6 +7,9 @@ import com.ead.authuser.models.UserModel;
 import com.ead.authuser.services.UserService;
 import com.ead.authuser.specifications.SpecificationTemplate;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,6 +47,11 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @GetMapping
+    @Operation(summary = "Listar todos os usuários", description = "Retorna uma lista de todos os usuários com paginação.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuários listados com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     public ResponseEntity<Page<UserModel>> getAllUsers(SpecificationTemplate.UserSpec spec,
                                                        @PageableDefault(page = 0, size = 10, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
                                                        Authentication authentication){
@@ -60,6 +68,12 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('STUDENT')")
     @GetMapping("/{userId}")
+    @Operation(summary = "Obter um usuário específico", description = "Retorna os detalhes de um usuário pelo ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     public ResponseEntity<Object> getOneUser(@PathVariable(value = "userId") UUID userId){
         UUID currentUserId = authenticationCurrentUserService.getCurrentUser().getUserId();
         if(currentUserId.equals(userId)) {
@@ -75,6 +89,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @Operation(summary = "Deletar um usuário", description = "Deleta um usuário pelo ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
     public ResponseEntity<Object> deleteUser(@PathVariable(value = "userId") UUID userId){
         log.debug("DELETE deleteUser userId received {} ", userId);
         Optional<UserModel> userModelOptional = userService.findById(userId);
@@ -89,6 +108,11 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
+    @Operation(summary = "Atualizar um usuário", description = "Atualiza os dados de um usuário pelo ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
     public ResponseEntity<Object> updateUser(@PathVariable(value = "userId") UUID userId,
                                              @RequestBody @Validated(UserDto.UserView.UserPut.class)
                                              @JsonView(UserDto.UserView.UserPut.class) UserDto userDto){
@@ -110,6 +134,12 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/password")
+    @Operation(summary = "Atualizar a senha do usuário", description = "Atualiza a senha de um usuário pelo ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Senha atualizada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "409", description = "Senha antiga não corresponde")
+    })
     public ResponseEntity<Object> updatePassword(@PathVariable(value = "userId") UUID userId,
                                                  @RequestBody @Validated(UserDto.UserView.PasswordPut.class)
                                                  @JsonView(UserDto.UserView.PasswordPut.class) UserDto userDto){
@@ -132,6 +162,11 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/image")
+    @Operation(summary = "Atualizar a imagem do usuário", description = "Atualiza a URL da imagem de um usuário pelo ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Imagem atualizada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
     public ResponseEntity<Object> updateImage(@PathVariable(value = "userId") UUID userId,
                                               @RequestBody @Validated(UserDto.UserView.ImagePut.class)
                                               @JsonView(UserDto.UserView.ImagePut.class) UserDto userDto){
@@ -149,7 +184,5 @@ public class UserController {
             return  ResponseEntity.status(HttpStatus.OK).body(userModel);
         }
     }
-
-
 
 }
